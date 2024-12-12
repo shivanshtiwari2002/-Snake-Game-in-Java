@@ -8,7 +8,8 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
-    static final int DELAY = 75;
+    static final int INITIAL_DELAY = 150;
+    int delay = INITIAL_DELAY;
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
     int bodyParts = 6;
@@ -19,6 +20,7 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    JButton restartButton;
 
     GamePanel() {
         random = new Random();
@@ -26,13 +28,19 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
+        restartButton = new JButton("Restart");
+        restartButton.setBounds(SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 100, 100, 50);
+        restartButton.setVisible(false);
+        restartButton.addActionListener(e -> restartGame());
+        this.setLayout(null);
+        this.add(restartButton);
         startGame();
     }
 
     public void startGame() {
         newApple();
         running = true;
-        timer = new Timer(DELAY, this);
+        timer = new Timer(delay, this);
         timer.start();
     }
 
@@ -48,7 +56,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
             }
 
-            g.setColor(Color.red);
+            g.setColor(Color.blue);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
             for (int i = 0; i < bodyParts; i++) {
@@ -102,6 +110,7 @@ public class GamePanel extends JPanel implements ActionListener {
             bodyParts++;
             applesEaten++;
             newApple();
+            increaseSpeed();
         }
     }
 
@@ -118,6 +127,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
         if (!running) {
             timer.stop();
+            restartButton.setVisible(true); // Show the Restart button
         }
     }
 
@@ -130,6 +140,23 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setColor(Color.white);
         g.setFont(new Font("Ink Free", Font.BOLD, 30));
         g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, SCREEN_HEIGHT / 2 + 50);
+    }
+
+    public void increaseSpeed() {
+        if (delay > 50) {
+            delay -= 2;
+            timer.setDelay(delay);
+        }
+    }
+
+    public void restartGame() {
+        bodyParts = 6;
+        applesEaten = 0;
+        delay = INITIAL_DELAY;
+        direction = 'R';
+        running = true;
+        restartButton.setVisible(false); // Hide the Restart button
+        startGame();
     }
 
     @Override
@@ -157,6 +184,11 @@ public class GamePanel extends JPanel implements ActionListener {
                     break;
                 case KeyEvent.VK_DOWN:
                     if (direction != 'U') direction = 'D';
+                    break;
+                case KeyEvent.VK_R:
+                    if (!running) {
+                        restartGame();
+                    }
                     break;
             }
         }
