@@ -155,7 +155,7 @@ public class GamePanel extends JPanel implements ActionListener {
         delay = INITIAL_DELAY;
         direction = 'R';
         running = true;
-        restartButton.setVisible(false); // Hide the Restart button
+        restartButton.setVisible(false); 
         startGame();
     }
 
